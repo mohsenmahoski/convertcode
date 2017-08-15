@@ -9,7 +9,7 @@
   
    mysql_set_charset('utf8',$conn);
    //query of all products with limit
-   $q = 'select* from tbl_products limit 6';
+   $q = 'select* from tbl_products limit 3';
    $result = mysql_query($q);
     
     if (!$result) {
@@ -254,14 +254,14 @@
       }
     if ($flag1 == true) {
         $flag1 = false;
-        $related .= '['.$re.']';
+        $related .= '[['.$re.']';
     }
       else{
           $related .= ',['.$re.']';
       }
     
    }
-
+$related .= ']';
 $fp = fopen("c:xampp\htdocs\charogh\\relatet.txt","wb");
 fwrite($fp,$related);
 fclose($fp);
