@@ -24,6 +24,10 @@
      $product = array();
      $product['id'] = $row->id;
      $product['title'] = $row->title;
+     $product['url'] = $row->title;
+     $product['url'] = trim($product['url']);
+     $product['url'] = str_replace(' ','-', $product['url']);
+     $product['url'] = str_replace('--','-', $product['url']);
      $product['cat'] = $row->cat_id;
      $product['producer'] = $row->producer_id;
      $product['price'] = $row->price1;
@@ -33,17 +37,23 @@
      }
      $product['desc'] = $row->des;
      $product['quantity'] = $row->quantity;
+      $product['stock'] =0;
+     if ($product['quantity'] == 0) {
+         $product['stock'] =1;
+     }
      $product['pic1'] = $row->pic1;
      $product['pic2'] = $row->pic2;
      $product['pic3'] = $row->pic3;
      $product['pic4'] = $row->pic4;
      $product['pic5'] = $row->pic5;
-     $product['disable'] = $row->disable;
-     if ($product['disable'] == 0) {
+     $product['disable'] = 1;
+
+     if ($row->disable == 0) {
          $product['disable'] = 1;
      }elseif ($product['disable'] ==1) {
          $product['disable'] = 0;
      }
+
      $product['priority'] = $row->priority;
      $product['visits'] = $row->visits;
      $product['likes'] = $row->likes;
@@ -262,7 +272,7 @@
     
    }
 $related .= ']';
-$fp = fopen("c:xampp\htdocs\charogh\\relatet.txt","wb");
+$fp = fopen("c:xampp\htdocs\charogh\\product_names.txt","wb");
 fwrite($fp,$related);
 fclose($fp);
 
@@ -275,12 +285,24 @@ fclose($fp);
 //create csv file
 $details = '';
 foreach ($products as $product) {
- $details .= PHP_EOL.'"admin","base","Default","simple","4,'.$product['cat'].'","ch'.$product['id'].'","0","'.$product['title'].'","متا","فوق توصیف","/1/_/'.$product['pic1'].'","/1/_/'.$product['pic1'].'","/1/_/'.$product['pic1'].'","'.str_replace(' ','-',$product['title']).'","'.str_replace(' ','-',$product['title']).'/","","بدون به روز رسانی‌های آرایش","ستون اطلاعات محصول","","","","ایران","استفاده از پیکربندی","استفاده از پیکربندی","خیر","'.bcdiv($product["weight"],1000 , 4).'","'.$product['price'].'","'.$product['s-price'].'","","ممکن‌شده","کاتالوگ، جستجو","","خیر","تایید شده","","","هیچ یک","خیر","'.$product['desc'].'",".","فوق واژه","","","","","","","","'.($product['quantity'].'.0000').'","0.0000","1","0","0","1","1.0000","1","0.0000","1","'.$product['disable'].'","","0.0000","1","0","1","0","1","0.0000","1","0","0","0","1","محصول","0","simple","","","","","","",""';
+ $details .= PHP_EOL.'"admin","base","Default","simple","4,'.$product['cat'].'","ch'.$product['id'].'","0","'.$product['title'].'","متا","فوق توصیف","/1/_/'.$product['pic1'].'","/1/_/'.$product['pic1'].'","/1/_/'.$product['pic1'].'","'.$product['url'].'","'.$product['url'].'/","","بدون به روز رسانی‌های آرایش","ستون اطلاعات محصول","","","","ایران","استفاده از پیکربندی","استفاده از پیکربندی","خیر","'.bcdiv($product["weight"],1000 , 4).'","'.$product['price'].'","'.$product['s-price'].'","","ممکن‌شده","کاتالوگ، جستجو","","خیر","تایید شده","","","هیچ یک","خیر","'.$product['desc'].'",".","فوق واژه","","","","","","","","'.($product['quantity'].'.0000').'","0.0000","1","0","0","1","1.0000","1","0.0000","1","'.$product['stock'].'","","0.0000","1","0","1","0","1","0.0000","1","0","0","0","1","'.$product['title'].'","0","simple","","","","","","",""';
+ if ($product['pic2'] != NUll) {
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic2"].'","","2","0"';
+ }
+ if ($product['pic3'] != NUll) {
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic3"].'","","3","0"';
+ }
+ if ($product['pic4'] != NUll) {
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic4"].'","","4","0"';
+ }
+ if ($product['pic5'] != NUll) {
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic5"].'","","5","0"';
+ }
 }
 $all = '"store","websites","attribute_set","type","category_ids","sku","has_options","name","meta_title","meta_description","image","small_image","thumbnail","url_key","url_path","custom_design","page_layout","options_container","image_label","small_image_label","thumbnail_label","country_of_manufacture","msrp_enabled","msrp_display_actual_price_type","gift_message_available","weight","price","special_price","msrp","status","visibility","vesbrand","featured","product_status","domestic_shipping_cost","international_shipping_cost","tax_class_id","is_recurring","description","short_description","meta_keyword","custom_layout_update","news_from_date","news_to_date","special_from_date","special_to_date","custom_design_from","custom_design_to","qty","min_qty","use_config_min_qty","is_qty_decimal","backorders","use_config_backorders","min_sale_qty","use_config_min_sale_qty","max_sale_qty","use_config_max_sale_qty","is_in_stock","low_stock_date","notify_stock_qty","use_config_notify_stock_qty","manage_stock","use_config_manage_stock","stock_status_changed_auto","use_config_qty_increments","qty_increments","use_config_enable_qty_inc","enable_qty_increments","is_decimal_divided","stock_status_changed_automatically","use_config_enable_qty_increments","product_name","store_id","product_type_id","product_status_changed","product_changed_websites","website","_media_image","_media_lable","_media_position","_media_is_disabled"'
 .$details."'";
-$fp = fopen("c:xampp\htdocs\charogh\ConvertFile.csv","wb");
+$fp = fopen("c:xampp\htdocs\charogh\Import.csv","wb");
 fwrite($fp,$all);
 fclose($fp);
-echo "Your Fiile Created Successfull";
+echo "<h1 style='background:green;color:#fff;'>Your Fiile Created Successfull</h1>";
 ?>
