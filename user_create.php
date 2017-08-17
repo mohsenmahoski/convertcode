@@ -29,17 +29,17 @@ function vendors()
 	        $url = trim($row->name);
 	        $url = str_replace(' ', '-' , $url);
 	        $url = str_replace('--', '-' , $url);
-	        
+	        $url = $row->id.'/'.$url;
 	        $seller['url'] = $url;
-	        $seller['username'] = $row->name;
-	        $seller['name'] = $row->real_name;
-	        $seller['desc'] = $row->des;
+	        $seller['username'] = trim($row->name);
+	        $seller['name'] = trim($row->real_name);
+	        $seller['desc'] = trim($row->des);
 	        if ($row->picture == Null) {
 	        	$seller['logo'] = 'default.jpg';
 	        }else{ $seller['logo'] = $row->picture;}
 	        $seller['disable'] = $row->disable;
-	        $seller['tel'] = $row->tel;
-	        $seller['email'] = $row->email;
+	        $seller['tel'] = trim($row->tel);
+	        $seller['email'] = trim($row->email);
 	        $seller['honors'] = $row->honors;
 
 	        array_push($sellers, $seller);
@@ -103,7 +103,8 @@ foreach ($sellers as $key) {
             ->setTelephone($key['tel'])
             ->setImage($key['logo'])
             ->setPostcode('123')
-            ->setAdminCommission_By_Percentage(15)
+            ->setCountry('IR')
+            ->setAdminCommissionByPercentage('15')
             ->setUserId($user['user_id'])
             ->save();
     } catch (Exception $e) {
