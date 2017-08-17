@@ -16,7 +16,7 @@ function vendors()
 	  
 	   mysql_set_charset('utf8',$conn);
 	   //query of all products with limit
-	   $q = 'select* from tbl_producers limit 3';
+	   $q = 'select* from tbl_producers limit 10';
 	   $result = mysql_query($q);
 	    
 	    if (!$result) {
@@ -33,15 +33,29 @@ function vendors()
 	        $seller['url'] = $url;
 	        $seller['username'] = trim($row->name);
 	        $seller['name'] = trim($row->real_name);
+          if ($seller['name'] == Null) {
+              $seller['name'] = $seller['username'];
+          }
 	        $seller['desc'] = trim($row->des);
+          if ($seller['desc'] == '') {
+            $seller['desc'] = 'با محصولات فروشگاه '.$seller['username'].' آشنا شوید. ';
+          }
 	        if ($row->picture == Null) {
 	        	$seller['logo'] = 'default.jpg';
 	        }else{ $seller['logo'] = $row->picture;}
 	        $seller['disable'] = $row->disable;
 	        $seller['tel'] = trim($row->tel);
-	        $seller['email'] = trim($row->email);
+	        if ($seller['tel'] == Null) {
+            $seller['tel'] = '123';
+          }
+          if (is_numeric($row->email)) {
+             $seller['email'] = str_replace(' ' , '_' , trim($seller['username'])).'@gmail.com';
+          }
+          else{
+             $seller['email'] = trim($row->email);
+          }
 	        $seller['honors'] = $row->honors;
-
+        
 	        array_push($sellers, $seller);
 	    }
 	 }
@@ -52,7 +66,7 @@ function vendors()
 
  $sellers = vendors();
 foreach ($sellers as $key) {
-  
+	
 
  
 
@@ -74,15 +88,15 @@ foreach ($sellers as $key) {
     }
     
    try {
-     $user = Mage::getModel('admin/user')->loadByUsername($key['username'])->getData();
-    
+   	 $user = Mage::getModel('admin/user')->loadByUsername($key['username'])->getData();
+   	
    } catch (Exception $e) {
-      echo $e->message; 
+   	  echo $e->message; 
            exit;
    }
 
     try {
-       $role = Mage::getModel("admin/roles")
+    	 $role = Mage::getModel("admin/roles")
                 ->setName($user['username'])
                 ->setUserId($user['user_id'])
                 ->setParentId('8')
@@ -91,11 +105,11 @@ foreach ($sellers as $key) {
                 ->setSortOrder('0')
                 ->save();
     } catch (Exception $e) {
-      echo $e->message; 
+    	echo $e->message; 
            exit;
     }
     try {
-       $manthan_seller = Mage::getModel('marketplace/seller')
+    	 $manthan_seller = Mage::getModel('marketplace/seller')
             ->setShopName($key['username'])
             ->setShopDescription($key['desc'])
             ->setUrlPath($key['url'])
@@ -107,7 +121,7 @@ foreach ($sellers as $key) {
             ->setUserId($user['user_id'])
             ->save();
     } catch (Exception $e) {
-      echo $e->message; 
+    	echo $e->message; 
            exit;
     }
   
