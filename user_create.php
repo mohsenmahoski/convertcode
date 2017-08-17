@@ -63,7 +63,7 @@ foreach ($sellers as $key) {
             ->setData(array(
                 'username'  => $key['username'],
                 'firstname' => $key['name'],
-                'lastname'  => 'نام خاوادگی',
+                'lastname'  => 'نام خانوادگی',
                 'email'     => $key['email'],
                 'password'  => 'admin123',
                 'is_active' => 0
