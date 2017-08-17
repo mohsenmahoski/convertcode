@@ -50,10 +50,9 @@ function vendors()
 	 return $sellers;
 }
 
-$sellers = vendors();
-
+ $sellers = vendors();
 foreach ($sellers as $key) {
-	
+  
 
  
 
@@ -75,15 +74,15 @@ foreach ($sellers as $key) {
     }
     
    try {
-   	 $user = Mage::getModel('admin/user')->loadByUsername($key['username'])->getData();
-   	
+     $user = Mage::getModel('admin/user')->loadByUsername($key['username'])->getData();
+    
    } catch (Exception $e) {
-   	  echo $e->message; 
+      echo $e->message; 
            exit;
    }
 
     try {
-    	 $role = Mage::getModel("admin/roles")
+       $role = Mage::getModel("admin/roles")
                 ->setName($user['username'])
                 ->setUserId($user['user_id'])
                 ->setParentId('8')
@@ -92,11 +91,11 @@ foreach ($sellers as $key) {
                 ->setSortOrder('0')
                 ->save();
     } catch (Exception $e) {
-    	echo $e->message; 
+      echo $e->message; 
            exit;
     }
     try {
-    	 $manthan_seller = Mage::getModel('marketplace/seller')
+       $manthan_seller = Mage::getModel('marketplace/seller')
             ->setShopName($key['username'])
             ->setShopDescription($key['desc'])
             ->setUrlPath($key['url'])
@@ -108,7 +107,7 @@ foreach ($sellers as $key) {
             ->setUserId($user['user_id'])
             ->save();
     } catch (Exception $e) {
-    	echo $e->message; 
+      echo $e->message; 
            exit;
     }
   
