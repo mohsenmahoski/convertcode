@@ -9,7 +9,8 @@
   
    mysql_set_charset('utf8',$conn);
    //query of all products with limit
-   $q = 'select* from tbl_products limit 3';
+   $q = 'SELECT pr.* , prd.* FROM tbl_products as pr
+LEFT JOIN tbl_producers as prd ON pr.producer_id = prd.id';
    $result = mysql_query($q);
     
     if (!$result) {
@@ -17,10 +18,10 @@
     }
     //create a array for saving related products
    $array_related = array();
- 
+   $array_producers = array();
  //fetch data from query with while loop
     while ($row = mysql_fetch_object($result)) {
-     
+      
      $product = array();
      $product['id'] = $row->id;
      $product['title'] = $row->title;
@@ -29,7 +30,7 @@
      $product['url'] = str_replace(' ','-', $product['url']);
      $product['url'] = str_replace('--','-', $product['url']);
      $product['cat'] = $row->cat_id;
-     $product['producer'] = $row->producer_id;
+     $product['producer'] = $row->name;
      $product['price'] = $row->price1;
      $product['s-price'] = $row->price2;
      if ($product['s-price'] == 0) {
@@ -40,6 +41,12 @@
       $product['stock'] = 1;
      if ($product['quantity'] == 0) {
          $product['stock'] =0;
+     }
+     if ($row->pic1 == NUll) {
+        $product['pic1'] = null;
+     }
+     else{
+
      }
      $product['pic1'] = $row->pic1;
      $product['pic2'] = $row->pic2;
@@ -53,6 +60,12 @@
      }elseif ($product['disable'] ==1) {
          $product['disable'] = 0;
      }
+     if (($row->name != null) && ($row->title != null)) {
+         $producer = [$row->name , $row->title];
+         array_push($array_producers,$producer);
+     }
+     
+
 
      $product['priority'] = $row->priority;
      $product['visits'] = $row->visits;
@@ -64,7 +77,7 @@
      $product['related'] = array();
      $product['related'] = explode('-' , $row->related);
      
-
+     
      if ($row->related != '') {
         
            $array=array();
@@ -245,37 +258,67 @@
     }
 
     
-   
+   //seave a file for related of producers
    mysql_close($conn);
-   $related = '';
+   
+   $str = '';
    $flag1 = true;
-   foreach ($array_related as $key) {
-     $re = ''; 
+   foreach ($array_producers as $key) {
+     $st = ''; 
      $flag2 = true;
-     foreach ($key as $value) {
+     foreach($key as $value) {
+       
        if ($flag2 == true) {
            $flag2 = false;
-            $re .="'".$value."'";
+            $st .="'".$value."'";
        }
          else{
-            $re .=",'".$value."'";
+            $st .=",'".$value."'";
          }
             
       }
     if ($flag1 == true) {
         $flag1 = false;
-        $related .= '[['.$re.']';
+        $str .= '[['.$st.']';
     }
       else{
-          $related .= ',['.$re.']';
+          $str .= ',['.$st.']';
       }
     
    }
-$related .= ']';
-$fp = fopen("c:xampp\htdocs\charogh\\product_names.txt","wb");
-fwrite($fp,$related);
+$str .= ']';
+$fp = fopen("c:xampp\htdocs\charogh\\producers_names.txt","wb");
+fwrite($fp,$str);
 fclose($fp);
-
+//save a file for products 
+$str = '';
+   $flag1 = true;
+   foreach ($array_related as $key) {
+     $st = ''; 
+     $flag2 = true;
+     foreach ($key as $value) {
+       if ($flag2 == true) {
+           $flag2 = false;
+            $st .="'".$value."'";
+       }
+         else{
+            $st .=",'".$value."'";
+         }
+            
+      }
+    if ($flag1 == true) {
+        $flag1 = false;
+        $str .= '[['.$st.']';
+    }
+      else{
+          $str .= ',['.$st.']';
+      }
+    
+   }
+$str .= ']';
+$fp = fopen("c:xampp\htdocs\charogh\\relations_names.txt","wb");
+fwrite($fp,$str);
+fclose($fp);
 
 }
 
@@ -285,7 +328,7 @@ fclose($fp);
 //create csv file
 $details = '';
 foreach ($products as $product) {
- $details .= PHP_EOL.'"admin","base","Default","simple","4,'.$product['cat'].'","ch'.$product['id'].'","0","'.$product['title'].'","متا","فوق توصیف","/1/_/'.$product['pic1'].'","/1/_/'.$product['pic1'].'","/1/_/'.$product['pic1'].'","product/'.$product['id'].'/'.$product['url'].'/","product/'.$product['id'].'/'.$product['url'].'/","","بدون به روز رسانی‌های آرایش","ستون اطلاعات محصول","","","","ایران","استفاده از پیکربندی","استفاده از پیکربندی","خیر","'.bcdiv($product["weight"],1000 , 4).'","'.$product['price'].'","'.$product['s-price'].'","","ممکن‌شده","کاتالوگ، جستجو","","خیر","تایید شده","","","هیچ یک","خیر","'.$product['desc'].'",".","فوق واژه","","","","","","","","'.($product['quantity'].'.0000').'","0.0000","1","0","0","1","1.0000","1","0.0000","1","'.$product['stock'].'","","0.0000","1","0","1","0","1","0.0000","1","0","0","0","1","'.$product['title'].'","0","simple","","","","","","",""';
+ $details .= PHP_EOL.'"admin","base","Default","simple","4,'.$product['cat'].'","ch'.$product['id'].'","0","'.$product['title'].'","متا","فوق توصیف","'.$product['pic1'].'","'.$product['pic1'].'","'.$product['pic1'].'","product/'.$product['id'].'/'.$product['url'].'/","product/'.$product['id'].'/'.$product['url'].'/","","بدون به روز رسانی‌های آرایش","ستون اطلاعات محصول","","","","ایران","استفاده از پیکربندی","استفاده از پیکربندی","خیر","'.bcdiv($product["weight"],1000 , 4).'","'.$product['price'].'","'.$product['s-price'].'","","ممکن‌شده","کاتالوگ، جستجو","","خیر","تایید شده","","","هیچ یک","خیر","'.$product['desc'].'",".","فوق واژه","","","","","","","","'.($product['quantity'].'.0000').'","0.0000","1","0","0","1","1.0000","1","0.0000","1","'.$product['stock'].'","","0.0000","1","0","1","0","1","0.0000","1","0","0","0","1","'.$product['title'].'","0","simple","","","","","","",""';
  if ($product['pic2'] != NUll) {
     $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic2"].'","","2","0"';
  }
