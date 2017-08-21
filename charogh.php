@@ -1,16 +1,19 @@
 <?php 
+    
+    require_once '/htmlpurifier/library/HTMLPurifier.auto.php';
+    $config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($config);
+    
 //connect to database
  if($conn = mysql_connect('localhost' , 'root' , ''));
 {
    $products=array();
-
    $q = 'use charogh';
    mysql_query($q , $conn);
   
    mysql_set_charset('utf8',$conn);
    //query of all products with limit
-   $q = 'SELECT pr.* , prd.* FROM tbl_products as pr
-LEFT JOIN tbl_producers as prd ON pr.producer_id = prd.id';
+   $q = 'select * from tbl_products';
    $result = mysql_query($q);
     
     if (!$result) {
@@ -30,13 +33,12 @@ LEFT JOIN tbl_producers as prd ON pr.producer_id = prd.id';
      $product['url'] = str_replace(' ','-', $product['url']);
      $product['url'] = str_replace('--','-', $product['url']);
      $product['cat'] = $row->cat_id;
-     $product['producer'] = $row->name;
      $product['price'] = $row->price1;
      $product['s-price'] = $row->price2;
      if ($product['s-price'] == 0) {
          $product['s-price'] = '';
      }
-     $product['desc'] = $row->des;
+     $product['desc'] = str_replace( '"' , '\'' , $purifier->purify($row->des));
      $product['quantity'] = $row->quantity;
       $product['stock'] = 1;
      if ($product['quantity'] == 0) {
@@ -60,8 +62,11 @@ LEFT JOIN tbl_producers as prd ON pr.producer_id = prd.id';
      }elseif ($product['disable'] ==1) {
          $product['disable'] = 0;
      }
-     if (($row->name != null) && ($row->title != null)) {
-         $producer = [$row->name , $row->title];
+     $q = 'select name from tbl_producers where id ='.$row->producer_id;
+     $sec_result = mysql_query($q);
+     if ($name = mysql_fetch_object($sec_result)) {
+        
+         $producer = [$name->name , $row->title];
          array_push($array_producers,$producer);
      }
      
@@ -257,7 +262,7 @@ LEFT JOIN tbl_producers as prd ON pr.producer_id = prd.id';
      array_push($products, $product);
     }
 
-    
+   
    //seave a file for related of producers
    mysql_close($conn);
    
@@ -327,19 +332,21 @@ fclose($fp);
 //Mohsen Mahoski
 //create csv file
 $details = '';
+$i = 0;
 foreach ($products as $product) {
- $details .= PHP_EOL.'"admin","base","Default","simple","4,'.$product['cat'].'","ch'.$product['id'].'","0","'.$product['title'].'","متا","فوق توصیف","'.$product['pic1'].'","'.$product['pic1'].'","'.$product['pic1'].'","product/'.$product['id'].'/'.$product['url'].'/","product/'.$product['id'].'/'.$product['url'].'/","","بدون به روز رسانی‌های آرایش","ستون اطلاعات محصول","","","","ایران","استفاده از پیکربندی","استفاده از پیکربندی","خیر","'.bcdiv($product["weight"],1000 , 4).'","'.$product['price'].'","'.$product['s-price'].'","","ممکن‌شده","کاتالوگ، جستجو","","خیر","تایید شده","","","هیچ یک","خیر","'.$product['desc'].'",".","فوق واژه","","","","","","","","'.($product['quantity'].'.0000').'","0.0000","1","0","0","1","1.0000","1","0.0000","1","'.$product['stock'].'","","0.0000","1","0","1","0","1","0.0000","1","0","0","0","1","'.$product['title'].'","0","simple","","","","","","",""';
+    $i++;
+ $details .= PHP_EOL.'"admin","base","Default","simple","4,'.$product['cat'].'","ch'.$product['id'].'","0","'.$product['title'].'","متا","فوق توصیف","/1/_/1_default.jpg","/1/_/1_default.jpg","/1/_/1_default.jpg","product/'.$product['id'].'/'.$product['url'].'/","product/'.$product['id'].'/'.$product['url'].'/","","بدون به روز رسانی‌های آرایش","ستون اطلاعات محصول","","","","ایران","استفاده از پیکربندی","استفاده از پیکربندی","خیر","'.bcdiv($product["weight"],1000 , 4).'","'.$product['price'].'","'.$product['s-price'].'","","ممکن‌شده","کاتالوگ، جستجو","","خیر","تایید شده","","","هیچ یک","خیر","'.$product['desc'].'",".","فوق واژه","","","","","","","","'.($product['quantity'].'.0000').'","0.0000","1","0","0","1","1.0000","1","0.0000","1","'.$product['stock'].'","","0.0000","1","0","1","0","1","0.0000","1","0","0","0","1","'.$product['title'].'","0","simple","","","","","","",""';
  if ($product['pic2'] != NUll) {
-    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic2"].'","","2","0"';
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/1_default.jpg","","2","0"';
  }
  if ($product['pic3'] != NUll) {
-    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic3"].'","","3","0"';
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/1_default.jpg","","3","0"';
  }
  if ($product['pic4'] != NUll) {
-    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic4"].'","","4","0"';
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/1_default.jpg","","4","0"';
  }
  if ($product['pic5'] != NUll) {
-    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/'.$product["pic5"].'","","5","0"';
+    $details .= PHP_EOL.'"admin","","","","","ch'.$product['id'].'","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","/1/_/1_default.jpg","","5","0"';
  }
 }
 $all = '"store","websites","attribute_set","type","category_ids","sku","has_options","name","meta_title","meta_description","image","small_image","thumbnail","url_key","url_path","custom_design","page_layout","options_container","image_label","small_image_label","thumbnail_label","country_of_manufacture","msrp_enabled","msrp_display_actual_price_type","gift_message_available","weight","price","special_price","msrp","status","visibility","vesbrand","featured","product_status","domestic_shipping_cost","international_shipping_cost","tax_class_id","is_recurring","description","short_description","meta_keyword","custom_layout_update","news_from_date","news_to_date","special_from_date","special_to_date","custom_design_from","custom_design_to","qty","min_qty","use_config_min_qty","is_qty_decimal","backorders","use_config_backorders","min_sale_qty","use_config_min_sale_qty","max_sale_qty","use_config_max_sale_qty","is_in_stock","low_stock_date","notify_stock_qty","use_config_notify_stock_qty","manage_stock","use_config_manage_stock","stock_status_changed_auto","use_config_qty_increments","qty_increments","use_config_enable_qty_inc","enable_qty_increments","is_decimal_divided","stock_status_changed_automatically","use_config_enable_qty_increments","product_name","store_id","product_type_id","product_status_changed","product_changed_websites","website","_media_image","_media_lable","_media_position","_media_is_disabled"'
@@ -347,5 +354,5 @@ $all = '"store","websites","attribute_set","type","category_ids","sku","has_opti
 $fp = fopen("c:xampp\htdocs\charogh\Import.csv","wb");
 fwrite($fp,$all);
 fclose($fp);
-echo "<h1 style='background:green;color:#fff;'>Your Fiile Created Successfull</h1>";
+echo "<h1 style='background:green;color:#fff;'>Your Fiile Created Successfull with ".$i." Record</h1>";
 ?>
