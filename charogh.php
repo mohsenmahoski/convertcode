@@ -66,7 +66,7 @@
      $sec_result = mysql_query($q);
      if ($name = mysql_fetch_object($sec_result)) {
         
-         $producer = [$name->name , $row->title];
+         $producer = [ $name->name , 'ch'.$row->id ];
          array_push($array_producers,$producer);
      }
      
@@ -97,6 +97,7 @@
             
             array_push($array, $title);
        }
+         array_push($array, $product['title']);
          array_push($array_related, $array);
      }
     
